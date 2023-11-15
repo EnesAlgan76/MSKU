@@ -13,71 +13,61 @@ import com.msku.example.myapplication.placeholder.Movie;
 
 import java.util.List;
 
-/**
- * {@link RecyclerView.Adapter} that can display a {@link PlaceholderItem}.
- * TODO: Replace the implementation with code for your data type.
- */
 public class MyMovieRecyclerViewAdapter extends RecyclerView.Adapter<MyMovieRecyclerViewAdapter.ViewHolder> {
 
-    private final List<Movie> mValues;
-    private final MovieFragment.OnMovieSelected mListener;
-    int selectedIndex;
+    private final List<Movie> movies;
+    private final MovieFragment.OnMovieSelected movieClickListener;
+    private int selectedIndex = -1; // Initialize with an invalid index
 
-
-    public MyMovieRecyclerViewAdapter(List<Movie> items,  MovieFragment.OnMovieSelected listener) {
-        mValues = items;
-        mListener = listener;
+    public MyMovieRecyclerViewAdapter(List<Movie> items, MovieFragment.OnMovieSelected listener) {
+        movies = items;
+        movieClickListener = listener;
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View myView = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_movie,parent,false);
+        View myView = LayoutInflater.from(parent.getContext()).inflate(R.layout.fragment_movie, parent, false);
         return new ViewHolder(myView);
-
     }
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mItem = mValues.get(position);
+        holder.mItem = movies.get(position);
         holder.mIdView.setText(Integer.toString(position));
-        holder.mContentView.setText(mValues.get(position).getName());
-        holder.view.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                if(mListener !=null){
-                    mListener.movieSelected(holder.mItem);
-                    notifyItemChanged(selectedIndex);
-                    selectedIndex = holder.getLayoutPosition();
-                    notifyItemChanged(selectedIndex);
-
-                }
-            }
-        });
+        holder.mContentView.setText(movies.get(position).getName());
 
         if (selectedIndex == position) {
-            holder.myLayout.setBackgroundColor(Color.blue(2));
+            holder.itemView.setBackgroundColor(Color.GREEN);
         } else {
-            holder.myLayout.setBackgroundColor(Color.TRANSPARENT);
+            holder.itemView.setBackgroundColor(Color.TRANSPARENT);
         }
+
+        holder.view.setOnClickListener(view -> {
+            if (movieClickListener != null) {
+                movieClickListener.movieSelected(holder.mItem);
+                int previousIndex = selectedIndex;
+                selectedIndex = holder.getLayoutPosition();
+                notifyItemChanged(previousIndex);
+                notifyItemChanged(selectedIndex);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return mValues.size();
+        return movies.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final TextView mIdView;
         public final View view;
         public final TextView mContentView;
-        public final LinearLayout myLayout;
         public Movie mItem;
 
-        public ViewHolder( View view) {
+        public ViewHolder(View view) {
             super(view);
             mIdView = view.findViewById(R.id.item_number);
             mContentView = view.findViewById(R.id.content);
-            myLayout = view.findViewById(R.id.myLineer);
             this.view = view;
         }
 
